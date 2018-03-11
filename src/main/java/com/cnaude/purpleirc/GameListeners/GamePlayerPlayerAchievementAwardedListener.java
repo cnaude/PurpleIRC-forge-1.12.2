@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  *
  * @author cnaude
  */
-import net.minecraftforge.event.entity.player.AchievementEvent;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 
 public class GamePlayerPlayerAchievementAwardedListener {
 
@@ -39,9 +39,9 @@ public class GamePlayerPlayerAchievementAwardedListener {
     }
 
     @SubscribeEvent
-    public void onAchievement(AchievementEvent event) {
+    public void onAchievement(AdvancementEvent event) {
         for (PurpleBot ircBot : plugin.ircBots.values()) {
-            ircBot.gameAchievement(event.getEntityPlayer(), event.getAchievement());
+            ircBot.gameAdvancement(event.getEntityPlayer(), event.getAdvancement());
         }
 
     }

@@ -57,9 +57,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.stats.Achievement;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.pircbotx.Channel;
@@ -1110,9 +1110,9 @@ plugin.logInfo("CHANNEL JOIN START");
     /**
      *
      * @param player
-     * @param achievement
+     * @param advcancement
      */
-    public void gameAchievement(EntityPlayer player, Achievement achievement) {
+    public void gameAdvancement(EntityPlayer player, Advancement advcancement) {
         if (!this.isConnected()) {
             return;
         }
@@ -1123,7 +1123,7 @@ plugin.logInfo("CHANNEL JOIN START");
         }
         String achivementDesc;
         try {
-            achivementDesc = achievement.getDescription();
+            achivementDesc = advcancement.getDisplayText().getFormattedText();
         } catch (Exception ex) {
             plugin.logDebug(ex.getMessage());
             return;
