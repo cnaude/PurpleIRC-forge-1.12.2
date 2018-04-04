@@ -40,11 +40,15 @@ public class CommandSender {
     }
 
     public boolean hasPermission(String permission) {
-        if (sender instanceof EntityPlayer) {
-            PermissionsHandler ph = PermissionsHandler.getHandler();
-            if (ph != null) {
-                return ph.hasPermission(sender.getCommandSenderEntity().getName(), permission);
+        try {
+            if (sender instanceof EntityPlayer) {
+                PermissionsHandler ph = PermissionsHandler.getHandler();
+                if (ph != null) {
+                    return ph.hasPermission(sender.getCommandSenderEntity().getName(), permission);
+                }
             }
+        } catch (Exception ex) {
+            plugin.logDebug(ex.getMessage());
         }
         return true;
     }
