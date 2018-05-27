@@ -115,7 +115,7 @@ public class IRCCommandSender implements ICommandSender {
 
     @Override
     public void sendMessage(ITextComponent component) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        addMessageToQueue(component.getFormattedText());        
     }
 
     @Override
