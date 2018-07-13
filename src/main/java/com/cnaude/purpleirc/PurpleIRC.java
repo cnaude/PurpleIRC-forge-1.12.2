@@ -72,6 +72,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 
 /**
  *
@@ -153,7 +154,7 @@ public class PurpleIRC {
     public RegexGlobber regexGlobber;
     public CaseInsensitiveMap<PurpleBot> ircBots;
     public DynmapHook dynmapHook;
-    
+
     private BotWatcher botWatcher;
     public IRCMessageHandler ircMessageHandler;
 
@@ -212,7 +213,6 @@ public class PurpleIRC {
             }
         }
 
-        
         regexGlobber = new RegexGlobber();
         tokenizer = new ChatTokenizer(this, proxy);
         loadBots();
@@ -227,8 +227,6 @@ public class PurpleIRC {
     @EventHandler
     public void init(FMLInitializationEvent event) {
 
-        proxy.init(this);
-
         MinecraftForge.EVENT_BUS.register(new GamePlayerDeathListener(this));
         MinecraftForge.EVENT_BUS.register(new GameServerCommandListener(this));
         MinecraftForge.EVENT_BUS.register(new GamePlayerChatListener(this));
@@ -236,7 +234,12 @@ public class PurpleIRC {
         MinecraftForge.EVENT_BUS.register(new GamePlayerJoinListener(this));
         MinecraftForge.EVENT_BUS.register(new GamePlayerQuitListener(this));
         MinecraftForge.EVENT_BUS.register(new GamePlayerPlayerAchievementAwardedListener(this));
-        
+
+    }
+
+    @EventHandler
+    public void postServerStarted(FMLServerStartedEvent event) {
+        proxy.init(this);
     }
 
     @EventHandler
