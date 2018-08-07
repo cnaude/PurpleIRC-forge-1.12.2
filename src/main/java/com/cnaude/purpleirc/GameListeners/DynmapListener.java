@@ -20,7 +20,8 @@ import com.cnaude.purpleirc.Hooks.DynmapHook;
 import com.cnaude.purpleirc.PurpleBot;
 import com.cnaude.purpleirc.PurpleIRC;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 
@@ -28,7 +29,7 @@ import org.dynmap.DynmapCommonAPIListener;
  *
  * @author cnaude
  */
-@Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "Dynmap")
+@SideOnly(Side.SERVER)
 public class DynmapListener extends DynmapCommonAPIListener {
 
     private final PurpleIRC plugin;
@@ -38,7 +39,7 @@ public class DynmapListener extends DynmapCommonAPIListener {
      * @param plugin
      */
     public DynmapListener(PurpleIRC plugin) {
-        plugin.logDebug("Initializing Dynmap listener.");
+        plugin.logInfo("Initializing Dynmap listener.");   
         this.plugin = plugin;
         register();
     }
@@ -48,7 +49,6 @@ public class DynmapListener extends DynmapCommonAPIListener {
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
     public boolean webChatEvent(String source, String name, String message) {
         plugin.logDebug("DynmapWebChat: " + source + " : " + name + ":" + message);
         for (PurpleBot ircBot : plugin.ircBots.values()) {
@@ -58,15 +58,14 @@ public class DynmapListener extends DynmapCommonAPIListener {
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
     public void apiEnabled(DynmapCommonAPI api) {
         plugin.logInfo("Registering Dynmap listener.");
-        this.plugin.dynmapHook = new DynmapHook(plugin, api);
         MinecraftForge.EVENT_BUS.register(this);
+        plugin.logInfo("Enabling Dynmap hook.");
+        this.plugin.dynmapHook = new DynmapHook(plugin, api);        
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
     public void apiDisabled(DynmapCommonAPI api) {
         plugin.logInfo("Unregistering Dynmap listener.");
         try {

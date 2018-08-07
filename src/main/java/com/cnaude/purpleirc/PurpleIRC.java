@@ -154,6 +154,7 @@ public class PurpleIRC {
     public RegexGlobber regexGlobber;
     public CaseInsensitiveMap<PurpleBot> ircBots;
     public DynmapHook dynmapHook;
+    public DynmapListener dynmapListener;
 
     private BotWatcher botWatcher;
     public IRCMessageHandler ircMessageHandler;
@@ -240,15 +241,22 @@ public class PurpleIRC {
     @EventHandler
     public void postServerStarted(FMLServerStartedEvent event) {
         proxy.init(this);
+
+        if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+            if (Loader.isModLoaded("dynmap")) {
+                logInfo("[postServerStarted] Firing up Dynmap listener");
+                dynmapListener = new DynmapListener(this);
+            } else {
+                logInfo("[postServerStarted] Dynmap mod not found");
+            }
+        } else {
+            logInfo("[postServerStarted] This does not appear to be a server");
+        }
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-            if (Loader.isModLoaded("Dynmap")) {
-                MinecraftForge.EVENT_BUS.register(new DynmapListener(this));
-            }
-        }
+
     }
 
     @EventHandler
