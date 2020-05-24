@@ -1,36 +1,30 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        mavenCentral()
+        //google()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
+
+
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
-    mavenLocal()
-    maven {
-        name = "dynmap"
-        url = "http://repo.mikeprimm.com"
-    }
-    maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
-    maven {
-        name 'Chris Naude'
-        url "http://www.cnaude.org/repo"
-    }
+    google()
+    maven { url = 'https://repo.chrisnaude.com' }
+    maven { url = 'https://repo.mikeprimm.com' }
+    maven { url = 'https://files.minecraftforge.net/maven' }
+    //jcenter()
+    //maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
-
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'java' // or 'groovy'. Must be explicitly applied
-apply plugin: 'maven-publish'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "SNAPSHOT"
 version = "${minecraft_version}-${purpleirc_version}-${jenkinsBuild}"
@@ -42,24 +36,34 @@ configurations {
     compile.extendsFrom shade
 }
 
-sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "${minecraft_version}-${forge_version}"
-    runDir = "run"
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
 
-    mappings = "${forge_mappings}"
+    runs {
+        client {
+           workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
 
-    replaceIn "Version.java"
-    replace "@VERSION@", "${project.version}"
-
+        server {
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 dependencies {
-    shade 'com.cnaude.pircbotx:pircbotx-shaded:2.1.8'
+    //minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+
+    shade 'com.cnaude.pircbotx:pircbotx:2.1.8-shaded'
     compile 'us.dynmap:DynmapCoreAPI:3.0-SNAPSHOT'
     //shade fileTree (dir: 'dist-lib', include: '*.jar')
     shade 'org.yaml:snakeyaml:1.17'
@@ -74,29 +78,28 @@ jar {
             exclude 'META-INF', 'META-INF/**', 'LICENSE.txt'
         }
     }
-}
-
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    // copy everything else except the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    manifest {
+        attributes([
+                "Specification-Title": "purpleirc",
+                "Specification-Vendor": "cnaude",
+                "Specification-Version": "1", // We are version 1 of ourselves
+                "Implementation-Title": "purpleirc",
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor" :"cnaude",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }
 
-compileJava
-{
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
 }
